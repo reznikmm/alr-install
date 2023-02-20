@@ -23,6 +23,10 @@ inputs:
     description: Whether to remove alr afterwards, if it wasn't originally installed
     required: false
     default: true
+  cache:
+    description: Whether to reuse a cached previous install
+    required: false
+    default: true
 
 runs:
   using: "composite"
@@ -51,7 +55,28 @@ runs:
           echo "force=" >> $GITHUB_OUTPUT
         fi
 
+    - name: Prepare cache id
+      id: find-versions
+      shell: bash
+      run: |
+        versions=""
+        for crate in ${{inputs.crates}}; do
+          versions+=":"$(alr show gprbuild | head -1 | cut -f1 -d:)
+        done
+        echo Versions are: $versions
+        echo "milestones=$versions" >> $GITHUB_OUTPUT
+
+    - name: Reuse cached installation
+      if: inputs.cache == 'true'
+      id: cache-install
+      uses: actions/cache@v3
+      with:
+        path: |
+          ${{inputs.prefix}}
+        key: '[alr-install][${{runner.os}}][${{inputs.prefix}}][${{steps.find-versions.outputs.milestones}}]'
+
     - name: Run `alr install`
+      if: inputs.cache != 'true' || steps.cache-install.outputs.cache-hit != 'true'
       shell: bash
       run: |
         alr ${{steps.force.outputs.force}} install ${{inputs.crates}} --prefix ${{inputs.prefix}}
