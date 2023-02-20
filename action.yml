@@ -1,0 +1,80 @@
+name: 'alr install'
+description: 'Install using `alr install`'
+author: 'Alire Project'
+
+inputs:
+  crates:
+    description: 'Crates to install, accepts version sets, e.g.: hello^2'
+    required: true
+    default: ''
+  prefix:
+    description: Location for the installation, will contain `<prefix>/bin` and so on
+    required: false
+    default: alire_prefix
+  force:
+    description: use `alr --force` during install
+    required: false
+    default: false
+  add_to_path:
+    description: Whether to add the prefix to path
+    required: false
+    default: true
+  clean:
+    description: Whether to remove alr afterwards, if it wasn't originally installed
+    required: false
+    default: true
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: Find alr in path
+      id: find-alr
+      shell: bash
+      run: |
+        which alr && echo "available=true" >> $GITHUB_OUTPUT || echo "available=false" >> $GITHUB_OUTPUT
+
+    - name: Set up alr
+      if: steps.find-alr.outputs.available != 'true'
+      uses: alire-project/setup-alire@v2
+      with:
+        version: nightly
+        toolchain: --disable-assistant
+
+    - name: Prepare --force
+      id: force
+      shell: bash
+      run: |
+        if [[ "${{inputs.force}}" != "false" ]]; then
+          echo "force=--force" >> $GITHUB_OUTPUT
+        else
+          echo "force=" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Run `alr install`
+      shell: bash
+      run: |
+        alr ${{steps.force.outputs.force}} install ${{inputs.crates}} --prefix ${{inputs.prefix}}
+
+    - name: Show prefix info
+      shell: bash
+      run: |
+        alr install --prefix ${{inputs.prefix}} --info
+
+    - name: Add to path (Windows)
+      if: inputs.add_to_path == 'true' && runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        $Target = Resolve-Path ${{inputs.prefix}}\bin
+        Add-Content $env:GITHUB_PATH $Target
+
+    - name: Add to path (!Windows)
+      if: inputs.add_to_path == 'true' && runner.os != 'Windows'
+      shell: bash
+      run: |
+        readlink -f "${{inputs.prefix}}/bin" >> $GITHUB_PATH      
+
+    - name: Cleanup
+      if: inputs.clean == 'true' && steps.find-alr.outputs.available != 'true'
+      shell: bash
+      run: rm -rf alire_install
