@@ -79,7 +79,7 @@ runs:
       if: inputs.cache != 'true' || steps.cache-install.outputs.cache-hit != 'true'
       shell: bash
       run: |
-        alr ${{steps.force.outputs.force}} install ${{inputs.crates}} --prefix ${{inputs.prefix}}
+        alr -d ${{steps.force.outputs.force}} install ${{inputs.crates}} --prefix ${{inputs.prefix}}
 
     - name: Show prefix info
       shell: bash
@@ -97,7 +97,7 @@ runs:
       if: inputs.add_to_path == 'true' && runner.os != 'Windows'
       shell: bash
       run: |
-        readlink -f "${{inputs.prefix}}/bin" >> $GITHUB_PATH      
+        readlink -f "${{inputs.prefix}}/bin" >> $GITHUB_PATH
 
     - name: Cleanup
       if: inputs.clean == 'true' && steps.find-alr.outputs.available != 'true'
