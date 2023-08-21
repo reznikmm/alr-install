@@ -42,6 +42,7 @@ runs:
       if: steps.find-alr.outputs.available != 'true'
       uses: alire-project/setup-alire@v2
       with:
+        cache: ${{inputs.cache}}
         version: nightly
         toolchain: --disable-assistant
 
