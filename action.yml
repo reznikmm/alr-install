@@ -62,7 +62,7 @@ runs:
       run: |
         versions=""
         for crate in ${{inputs.crates}}; do
-          versions+=":"$(alr show gprbuild | head -1 | cut -f1 -d:)
+          versions+=":"$(alr show ${crate} | head -1 | cut -f1 -d:)
         done
         echo Versions are: $versions
         echo "milestones=$versions" >> $GITHUB_OUTPUT
