@@ -1,13 +1,15 @@
 name: Source branch
 on: [pull_request]
+env:
+  TARGET_HEAD: v1-next
 
 jobs:
   check_pr:
     runs-on: ubuntu-latest
     steps:
     - name: Check on proper branch
-      if: github.head_ref != 'v1-next'
+      if: github.head_ref != env.TARGET_HEAD
       uses: actions/github-script@v3
       with:
         script: |
-          core.setFailed(`PRs for latest-stable must come from v1-next, but branch is ${{ github.head_ref }}`)
+          core.setFailed(`PRs for latest-stable must come from ${{ env.TARGET_HEAD }}, but branch is ${{ github.head_ref }}`)

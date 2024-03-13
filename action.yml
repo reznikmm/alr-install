@@ -40,11 +40,9 @@ runs:
 
     - name: Set up alr
       if: steps.find-alr.outputs.available != 'true'
-      uses: alire-project/setup-alire@v2
+      uses: alire-project/setup-alire@v3
       with:
         cache: ${{inputs.cache}}
-        version: nightly
-        toolchain: --disable-assistant
 
     - name: Prepare --force
       id: force

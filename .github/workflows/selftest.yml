@@ -10,11 +10,11 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
-    steps:      
+    steps:
       - uses: alire-project/alr-install@v1-next
         with:
           crates: gprbuild
-          # This can be changed to a more lightweight crate (hello) 
+          # This can be changed to a more lightweight crate (hello)
           # once we can install indexed releases.
           cache: false # Don't use cache for testing
 
