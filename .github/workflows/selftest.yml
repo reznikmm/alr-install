@@ -14,7 +14,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - uses: ./ # Uses the action code from the PR itself
+      - name: Selftest
+        uses: ./ # Uses the action code from the PR itself
         with:
           crates: gprbuild
           # This can be changed to a more lightweight crate (hello)
