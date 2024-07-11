@@ -7,6 +7,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
+        cached: [false, true]
 
     runs-on: ${{ matrix.os }}
 
@@ -20,7 +21,7 @@ jobs:
           crates: gprbuild
           # This can be changed to a more lightweight crate (hello)
           # once we can install indexed releases.
-          cache: false # Don't use cache for testing
+          cache: ${{ matrix.cached }}
 
       - name: Run check
         shell: bash
