@@ -72,7 +72,7 @@ runs:
       with:
         path: |
           ${{inputs.prefix}}
-        key: '[alr-install][${{runner.os}}][${{inputs.prefix}}][${{steps.find-versions.outputs.milestones}}]'
+        key: '[alr-install][${{runner.os}}][${{runner.arch}}][${{inputs.prefix}}][${{steps.find-versions.outputs.milestones}}]'
 
     - name: Run `alr install`
       if: inputs.cache != 'true' || steps.cache-install.outputs.cache-hit != 'true'
