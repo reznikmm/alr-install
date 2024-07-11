@@ -54,7 +54,7 @@ runs:
           echo "force=" >> $GITHUB_OUTPUT
         fi
 
-    - name: Prepare cache id
+    - name: Prepare cache milestones
       id: find-versions
       shell: bash
       run: |
@@ -65,14 +65,27 @@ runs:
         echo Versions are: $versions
         echo "milestones=$versions" >> $GITHUB_OUTPUT
 
+    - name: Prepare cache id
+      id: cache-key
+      shell: bash
+      run: |
+        echo "key=[alr-install][${{runner.os}}][${{runner.arch}}][${{inputs.prefix}}][${{steps.find-versions.outputs.milestones}}]" >> $GITHUB_OUTPUT
+
     - name: Reuse cached installation
       if: inputs.cache == 'true'
       id: cache-install
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           ${{inputs.prefix}}
-        key: '[alr-install][${{runner.os}}][${{inputs.prefix}}][${{steps.find-versions.outputs.milestones}}]'
+        key: ${{steps.cache-key.outputs.key}}
+
+    - name: Diagnose cache usage
+      shell: bash
+      run: |
+        echo "alr-install cache requested: ${{inputs.cache}}"
+        echo "alr-install cache hit: ${{steps.cache-install.outputs.cache-hit}}"
+        echo "alr-install cache key: ${{steps.cache-key.outputs.key}}"
 
     - name: Run `alr install`
       if: inputs.cache != 'true' || steps.cache-install.outputs.cache-hit != 'true'
