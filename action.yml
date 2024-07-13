@@ -27,6 +27,10 @@ inputs:
     description: Whether to reuse a cached previous install
     required: false
     default: true
+  extra_index:
+    description: URL to an extra index if needed
+    required: false
+    default: ''
 
 runs:
   using: "composite"
@@ -86,6 +90,13 @@ runs:
         echo "alr-install cache requested: ${{inputs.cache}}"
         echo "alr-install cache hit: ${{steps.cache-install.outputs.cache-hit}}"
         echo "alr-install cache key: ${{steps.cache-key.outputs.key}}"
+
+    - name: Run `alr index --add=${{inputs.extra_index}}`
+      if: inputs.extra_index != ''
+      shell: bash
+      run: |
+        alr index --reset-community
+        alr index --add=${{inputs.extra_index}} --before=community --name=extra
 
     - name: Run `alr install`
       if: inputs.cache != 'true' || steps.cache-install.outputs.cache-hit != 'true'
