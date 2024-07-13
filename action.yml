@@ -96,6 +96,7 @@ runs:
       shell: bash
       run: |
         alr index --reset-community
+        alr settings --global --set dependencies.shared False
         alr index --add=${{inputs.extra_index}} --before=community --name=extra
 
     - name: Run `alr install`
